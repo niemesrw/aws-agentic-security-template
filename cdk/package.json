@@ -1,0 +1,30 @@
+{
+  "name": "agentic-security-cdk",
+  "version": "0.1.0",
+  "bin": {
+    "agentic-security-cdk": "bin/app.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "cdk": "cdk",
+    "synth": "cdk synth",
+    "deploy": "cdk deploy",
+    "destroy": "cdk destroy",
+    "cdk-test": "jest",
+    "lambda-build": "cd ../lambda && GOOS=linux GOARCH=amd64 go build -o dist/main handler.go && cd ../cdk",
+    "lambda-test": "cd ../lambda && go test && cd ../cdk",
+    "lint": "eslint 'lib/**/*.ts' 'bin/**/*.ts' --max-warnings=0",
+    "format": "prettier --write 'lib/**/*.ts' 'bin/**/*.ts'"
+  },
+  "devDependencies": {
+    "aws-cdk-lib": "^2.130.0",
+    "constructs": "^10.3.0",
+    "typescript": "^5.4.5",
+    "jest": "^29.7.0",
+    "@types/jest": "^29.5.12",
+    "ts-jest": "^29.1.2",
+    "eslint": "^9.4.1",
+    "prettier": "^3.3.2"
+  }
+}

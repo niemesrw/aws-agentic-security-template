@@ -1,0 +1,4 @@
+{
+  "resource": "s3://example-bucket",
+  "permission": "public-read"
+}

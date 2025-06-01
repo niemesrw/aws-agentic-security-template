@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install CDK dependencies
+        run: |
+          cd cdk
+          npm ci
+
+      - name: Build TypeScript
+        run: |
+          cd cdk
+          npm run build
+
+      - name: Run CDK unit tests
+        run: |
+          cd cdk
+          npm run cdk-test
+
+      - name: Build Go Lambda
+        run: |
+          cd lambda
+          GOOS=linux GOARCH=amd64 go build -o dist/main handler.go
+
+      - name: Run Go unit tests
+        run: |
+          cd lambda
+          go test -v

@@ -1,0 +1,13 @@
+# Ignore build artifacts and dependencies
+cdk/node_modules/
+cdk/dist/
+lambda/dist/
+*.exe
+*.out
+*.test
+.vscode/
+.idea/
+.DS_Store
+
+# Ignore prompt assets (optional: remove if you want to track prompt output artifacts)
+prompts/*.output.*
