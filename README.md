@@ -230,10 +230,11 @@ flowchart TD
 
 ### Prerequisites
 
-- [Node.js](https://nodejs.org/) (v20 or later)
-- [Go](https://golang.org/) (v1.24 or later)
+- [Node.js](https://nodejs.org/) (v20 or later; see `.nvmrc` in `cdk/` for the required version)
+- [Go](https://golang.org/) (v1.23.x; see `.go-version` in the project root for the required version)
 - [AWS CLI](https://aws.amazon.com/cli/) (configured with your credentials)
 - [AWS CDK](https://docs.aws.amazon.com/cdk/latest/guide/getting_started.html) (install globally with `npm install -g aws-cdk`)
+- [golangci-lint](https://golangci-lint.run/) (install with `brew install golangci-lint`)
 
 ### Setup
 

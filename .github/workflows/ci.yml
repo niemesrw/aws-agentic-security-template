@@ -15,12 +15,28 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.22'
+          go-version-file: .go-version
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version-file: cdk/.nvmrc
+
+      - name: Cache Go modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+
+      - name: Cache Node modules
+        uses: actions/cache@v4
+        with:
+          path: cdk/node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('cdk/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
 
       - name: Install CDK dependencies
         run: |
@@ -32,11 +48,6 @@ jobs:
           cd cdk
           npm run build
 
-      - name: Run CDK unit tests
-        run: |
-          cd cdk
-          npm run cdk-test
-
       - name: Build Go Lambda
         run: |
           cd lambda
@@ -46,3 +57,19 @@ jobs:
         run: |
           cd lambda
           go test -v
+
+      - name: Build Go Lambda (for CDK)
+        run: |
+          cd lambda
+          GOOS=linux GOARCH=amd64 go build -o dist/main handler.go
+
+      - name: Run CDK unit tests
+        run: |
+          cd cdk
+          npm run cdk-test
+
+      - name: Verify Go installation
+        run: |
+          go version
+          go env GOROOT
+          go env GOPATH

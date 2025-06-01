@@ -21,6 +21,12 @@ export class AgenticSecurityStack extends cdk.Stack {
       description: 'Agentic security Lambda written in Go',
     });
 
+    // Output the Lambda function ARN for reference
+    new cdk.CfnOutput(this, 'AgentFunctionArn', {
+      value: agentFunction.functionArn,
+      description: 'ARN of the Agentic Security Lambda function',
+    });
+
     // Add more constructs/resources as needed
   }
 }

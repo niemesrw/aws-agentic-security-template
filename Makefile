@@ -27,7 +27,7 @@ lambda-local:
 	echo "Invoking Lambda locally with sample-events/sample-event.json" && \
 	sam local invoke "AgenticGoHandler" -e ../sample-events/sample-event.json
 
-cdk-test:
+cdk-test: lambda-build
 	cd cdk && npm install && npm run build && npm run cdk-test
 
 lint:
