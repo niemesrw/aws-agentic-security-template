@@ -15,12 +15,12 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.22'
+          go-version-file: .go-version
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version-file: cdk/.nvmrc
 
       - name: Install CDK dependencies
         run: |
@@ -32,11 +32,6 @@ jobs:
           cd cdk
           npm run build
 
-      - name: Run CDK unit tests
-        run: |
-          cd cdk
-          npm run cdk-test
-
       - name: Build Go Lambda
         run: |
           cd lambda
@@ -46,3 +41,13 @@ jobs:
         run: |
           cd lambda
           go test -v
+
+      - name: Build Go Lambda (for CDK)
+        run: |
+          cd lambda
+          GOOS=linux GOARCH=amd64 go build -o dist/main handler.go
+
+      - name: Run CDK unit tests
+        run: |
+          cd cdk
+          npm run cdk-test
