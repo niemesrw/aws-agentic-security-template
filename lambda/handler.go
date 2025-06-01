@@ -2,14 +2,13 @@ package main
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/aws/aws-lambda-go/lambda"
 )
 
 // Handler is the Lambda entrypoint. Replace this with your agent logic.
 func Handler(ctx context.Context) (string, error) {
-	return fmt.Sprintf("Hello from Agentic Security Tool!"), nil
+	return "Hello from Agentic Security Tool!", nil
 }
 
 func main() {

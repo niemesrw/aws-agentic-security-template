@@ -73,3 +73,4 @@ jobs:
         with:
           version: latest
           working-directory: lambda
+          args: --out-format=colored-line-number
