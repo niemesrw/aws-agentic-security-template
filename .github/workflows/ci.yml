@@ -82,7 +82,7 @@ jobs:
       - name: Run golangci-lint
         run: |
           cd lambda
-          golangci-lint run --out-format=colored-line-number
+          golangci-lint run
 
       - name: Run TypeScript linting
         run: |
