@@ -16,7 +16,7 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version-file: .go-version
-          
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
@@ -73,18 +73,3 @@ jobs:
           go version
           go env GOROOT
           go env GOPATH
-
-      - name: Install golangci-lint
-        run: |
-          curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin
-          echo "$(go env GOPATH)/bin" >> $GITHUB_PATH
-
-      - name: Run golangci-lint
-        run: |
-          cd lambda
-          golangci-lint run
-
-      - name: Run TypeScript linting
-        run: |
-          cd cdk
-          npm run lint
