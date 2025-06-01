@@ -16,7 +16,7 @@ messages:
           Evaluate the following AWS security alert. Identify the root cause, assess risk, suggest a remediation strategy, and flag whether it's a potential false positive.
 
           ## Alert Payload:
-          {{ input }}
+          {{input}}
 
           ## Output Format (Markdown):
           ### Alert Summary
@@ -39,3 +39,7 @@ messages:
           ### Missing Information
           - [Field] – Why it's required.
 model: openai/gpt-4o
+testData:
+  - input: alert
+    expected: haha
+evaluators: []
