@@ -1,4 +1,21 @@
 {
+  "alertType": "S3_PUBLIC_READ_ACCESS",
   "resource": "s3://example-bucket",
-  "permission": "public-read"
+  "region": "us-east-1",
+  "severity": "HIGH",
+  "description": "S3 bucket configured with public read access",
+  "timestamp": "2025-06-01T10:30:00Z",
+  "metadata": {
+    "bucketPolicy": "public-read",
+    "encryptionEnabled": false,
+    "loggingEnabled": true,
+    "versioningEnabled": false
+  },
+  "rawPayload": {
+    "eventSource": "aws:s3",
+    "eventName": "BucketPolicyChanged",
+    "awsRegion": "us-east-1",
+    "sourceIPAddress": "203.0.113.12",
+    "userAgent": "aws-cli/2.0.0"
+  }
 }

@@ -35,12 +35,43 @@ This repository demonstrates a clean and scalable pattern for building security 
 
 ```mermaid
 graph TD
-  User[User/Operator] --> CLI
-  CLI --> CDK[CDK App (TypeScript)]
-  CDK --> Lambda[Lambda Function (Go)]
-  Lambda --> AWS[AWS Services]
-  CDK --> AWS
+    A[GitHub Repository] --> B[GitHub Actions]
+    B --> C[CDK Deploy]
+    C --> D[S3 Bucket - Prompts]
+    C --> E[Lambda Function]
+    D --> E
+    F[Security Alert] --> E
+    E --> G[LLM API Call]
+    G --> E
+    E --> H[Security Analysis Response]
+    
+    subgraph "AWS Environment"
+        D
+        E
+    end
+    
+    subgraph "CI/CD Pipeline"
+        A
+        B
+        C
+    end
 ```
+
+### Component Flow
+
+1. **Prompt Management**: Security analysis prompts are stored in the `prompts/` directory and version-controlled in Git
+2. **Automated Deployment**: GitHub Actions automatically deploys prompt changes to S3 and updates the Lambda function
+3. **Runtime Processing**: Lambda function dynamically loads the latest prompts from S3 for each security alert analysis
+4. **LLM Integration**: The function uses the loaded prompts to make structured API calls to the configured LLM
+5. **Response Generation**: Returns formatted security analysis in Markdown format
+
+### Key Benefits
+
+- **Version Control**: All prompt iterations are tracked in Git
+- **Zero Downtime Updates**: Prompt changes don't require Lambda redeployment
+- **Rollback Capability**: S3 versioning allows instant rollback to previous prompts
+- **Environment Separation**: Different prompts can be deployed to different environments
+- **Cost Optimization**: Lambda cold starts are minimized by loading prompts from S3
 
 ---
 
@@ -53,25 +84,46 @@ repo-root/
 │   ├── lib/            # CDK stacks and constructs
 │   ├── __tests__/      # Unit/integration tests for CDK (TypeScript/Jest)
 │   ├── package.json
-│   └── tsconfig.json
-├── lambda/             # Go source code for Lambda
-│   ├── handler.go
-│   └── handler_test.go # Go unit tests
-├── prompts/            # LLM prompt assets and templates
-│   └── example_prompt.txt
-├── sample-events/      # Example Lambda event payloads for local testing
+│   ├── tsconfig.json
+│   └── cdk.json        # CDK configuration
+├── lambda/             # Go-based Lambda functions
+│   ├── go.mod          # Go module dependencies
+│   ├── go.sum          # Go dependency checksums
+│   ├── handler.go      # Main Lambda handler with S3 prompt loading
+│   ├── handler_test.go # Go tests
+│   └── dist/           # Compiled binaries (generated)
+├── prompts/            # LLM prompts in YAML format
+│   └── aws_lambda_security_analysis.prompt.yml
+├── sample-events/      # Example Lambda event payloads
 │   └── sample-event.json
 ├── .github/
-│   └── workflows/
-│       ├── ci.yml      # Continuous Integration workflow
-│       └── lint.yml    # Linting workflow
-├── .env.example        # Example environment variable file
-├── README.md           # Documentation
-├── Makefile            # Workflow automation
-├── .gitignore
-├── CONTRIBUTING.md     # Contribution guidelines
-├── LICENSE             # Project license
+│   └── workflows/      # GitHub Actions CI/CD
+│       ├── ci.yml      # General CI pipeline
+│       ├── lint.yml    # Code quality checks
+│       └── deploy-prompts.yml # Automatic deployment on prompt changes
+├── scripts/            # Utility scripts for development
+├── Makefile            # Build automation
+├── README.md
+├── CONTRIBUTING.md
+└── LICENSE
 ```
+
+### Prompt Management Workflow
+
+The new architecture enables seamless iteration on LLM prompts:
+
+1. **Edit Prompts**: Modify files in the `prompts/` directory
+2. **Version Control**: Commit and push changes to GitHub
+3. **Automatic Deployment**: GitHub Actions automatically deploys prompt changes to S3
+4. **Runtime Loading**: Lambda function dynamically loads the latest prompts from S3
+5. **Zero Downtime**: No Lambda redeployment required for prompt updates
+
+### Key Files
+
+- **`prompts/aws_lambda_security_analysis.prompt.yml`**: Main security analysis prompt
+- **`lambda/handler.go`**: Lambda function with S3 prompt loading logic
+- **`cdk/lib/agentic-security-stack.ts`**: Infrastructure definition including S3 and Lambda
+- **`.github/workflows/deploy-prompts.yml`**: Automatic deployment pipeline
 
 ---
 
@@ -191,14 +243,16 @@ A set of well-defined targets is provided for local development, testing, lintin
 
 ```sh
 make               # Show help for common targets
+make setup         # Setup environment variables and configuration
 make lambda-build  # Build Go Lambda binary for deployment
 make lambda-test   # Run Go Lambda unit tests
 make lambda-local  # Invoke Go Lambda locally with sample event
+make lambda-invoke # Invoke deployed Lambda function with sample event
 make cdk-test      # Run CDK (TypeScript) unit tests
 make lint          # Lint both Go and TypeScript code
 make format        # Format both Go and TypeScript code
 make test          # Run all tests
-make deploy        # Deploy the stack using CDK
+make deploy        # Deploy the stack using CDK (includes setup)
 make clean         # Clean build artifacts
 ```
 
@@ -230,67 +284,77 @@ flowchart TD
 
 ### Prerequisites
 
-- [Node.js](https://nodejs.org/) (v20 or later; see `.nvmrc` in `cdk/` for the required version)
-- [Go](https://golang.org/) (v1.23.x; see `.go-version` in the project root for the required version)
+- [Node.js](https://nodejs.org/) (v20 or later)
+- [Go](https://golang.org/) (v1.23.x or later)
 - [AWS CLI](https://aws.amazon.com/cli/) (configured with your credentials)
 - [AWS CDK](https://docs.aws.amazon.com/cdk/latest/guide/getting_started.html) (install globally with `npm install -g aws-cdk`)
-- [golangci-lint](https://golangci-lint.run/) (install with `brew install golangci-lint`)
 
-### Setup
+### Quick Start
 
 1. **Clone the repository:**
    ```sh
    git clone <repo-url>
-   cd <repo-directory>
+   cd aws-agentic-security-template
    ```
-2. **Install CDK dependencies:**
+
+2. **Automated Setup (Recommended):**
    ```sh
-   cd cdk
-   npm install
-   ```
-3. **Initialize Go modules and dependencies (if not already present):**
-   ```sh
-   cd lambda
-   go mod tidy
-   ```
-   > If you see errors, ensure your `go.mod` contains:
-   >
-   >     module agentic-security-lambda
-   >     go 1.24.3
-   >     require github.com/aws/aws-lambda-go v1.48.0
-4. **Build Lambda binary:**
-   ```sh
-   make lambda-build
-   ```
-5. **Bootstrap your AWS environment (only needed once per AWS account/region):**
-   ```sh
-   cd cdk
-   cdk bootstrap
-   ```
-   > This step sets up the necessary resources for AWS CDK deployments. You only need to run it once per AWS account and region.
-6. **Configure AWS credentials:**
-   - If you use standard AWS credentials, run:
-     ```sh
-     aws configure
-     ```
-   - If you use AWS SSO (IAM Identity Center), run:
-     ```sh
-     aws configure sso
-     aws sso login
-     ```
-   > For more details, see the [AWS CLI SSO documentation](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-sso.html).
-7. **Deploy the stack:**
-   If you are using AWS SSO, add the `--profile <your-sso-profile>` flag to CDK commands to use your SSO credentials. For example:
-   ```sh
-   cdk bootstrap --profile <your-sso-profile>
-   make deploy CDK_ARGS="--profile <your-sso-profile>"
-   ```
-   Replace `<your-sso-profile>` with the name of your SSO profile as configured in your AWS CLI.
-   
-   If you are not using SSO, you can run the commands without the profile flag:
-   ```sh
-   cdk bootstrap
+   # Setup environment and deploy everything
+   make setup
    make deploy
    ```
+
+3. **Test the deployed Lambda function:**
+   ```sh
+   make lambda-invoke
+   ```
+
+That's it! The automated setup will:
+- Detect your AWS account and region automatically
+- Configure environment variables
+- Build the Go Lambda binary
+- Deploy the CDK stack with S3 prompt storage
+- Upload prompts to S3
+
+### Manual Setup (Alternative)
+
+If you prefer manual setup or need customization:
+
+1. **Install dependencies:**
+   ```sh
+   cd cdk && npm install
+   cd ../lambda && go mod tidy
+   ```
+
+2. **Configure environment:**
+   ```sh
+   cp .env.example .env.local
+   # Edit .env.local with your settings
+   ```
+
+3. **Build and deploy:**
+   ```sh
+   make lambda-build
+   make deploy
+   ```
+
+### Using Different AWS Profiles
+
+For AWS SSO users:
+```sh
+AWS_PROFILE=your-sso-profile make deploy
+```
+
+### Testing
+
+```sh
+# Run all tests
+make test
+
+# Test individual components
+make lambda-test      # Go unit tests
+make cdk-test         # CDK unit tests
+make lambda-invoke    # Test deployed function
+```
 
 For more details, see the [Copilot Instructions](.github/workflows/copilot-instructions.md).
