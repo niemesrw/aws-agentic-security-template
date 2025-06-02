@@ -1,0 +1,92 @@
+name: Deploy on Prompt Changes
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'prompts/**'
+      - 'lambda/**'
+      - 'cdk/**'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'prompts/**'
+      - 'lambda/**'
+      - 'cdk/**'
+
+jobs:
+  validate-prompts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate YAML syntax
+        run: |
+          for file in prompts/*.yml prompts/*.yaml; do
+            if [ -f "$file" ]; then
+              echo "Validating $file"
+              python3 -c "import yaml; yaml.safe_load(open('$file'))"
+            fi
+          done
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: validate-prompts
+    if: github.ref == 'refs/heads/main'
+    permissions:
+      id-token: write
+      contents: read
+    
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: us-east-1
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: lambda/go.mod
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: cdk/package-lock.json
+
+      - name: Install CDK dependencies
+        working-directory: cdk
+        run: npm ci
+
+      - name: Build Lambda function
+        working-directory: lambda
+        run: |
+          go mod tidy
+          mkdir -p dist
+          GOOS=linux GOARCH=amd64 go build -o dist/bootstrap handler.go
+
+      - name: Run tests
+        working-directory: lambda
+        run: go test -v
+
+      - name: Deploy CDK stack
+        working-directory: cdk
+        run: |
+          npm run build
+          npx cdk deploy --require-approval never
+
+      - name: Notify on success
+        if: success()
+        run: |
+          echo "✅ Successfully deployed prompt changes to AWS Lambda"
+          echo "Prompts are now available in S3 and Lambda function updated"
+
+      - name: Notify on failure
+        if: failure()
+        run: |
+          echo "❌ Deployment failed. Please check the logs above."
+          exit 1
