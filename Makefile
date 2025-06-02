@@ -34,7 +34,7 @@ lambda-test:
 
 lambda-local:
 	cd lambda && \
-	go build -o main handler.go && \
+	go build -o bootstrap handler.go && \
 	echo "Invoking Lambda locally with sample-events/sample-event.json" && \
 	sam local invoke "AgenticGoHandler" -e ../sample-events/sample-event.json
 
