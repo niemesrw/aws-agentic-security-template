@@ -91,7 +91,7 @@ echo ""
 echo -e "${BLUE}🔧 Creating IAM Role for GitHub Actions...${NC}"
 
 ROLE_NAME="GitHubActions-AgenticSecurity-Role"
-TRUST_POLICY_FILE="/tmp/github-trust-policy.json"
+TRUST_POLICY_FILE=$(mktemp /tmp/github-trust-policy-XXXXXX.json)
 
 # Create trust policy document
 cat > "$TRUST_POLICY_FILE" << EOF
