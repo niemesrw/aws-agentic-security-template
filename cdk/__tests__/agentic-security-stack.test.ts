@@ -8,7 +8,8 @@ test('Stack contains a Lambda Function', () => {
   const template = Template.fromStack(stack);
 
   template.hasResourceProperties('AWS::Lambda::Function', {
-    Runtime: 'go1.x',
-    Handler: 'main',
+    Runtime: 'provided.al2023',
+    Handler: 'bootstrap',
+    Description: 'Agentic security Lambda with dynamic prompt loading'
   });
 });

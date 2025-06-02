@@ -16,14 +16,14 @@ help:
 	@echo "  make clean             Clean build artifacts"
 
 lambda-build:
-	cd lambda && mkdir -p dist && GOOS=linux GOARCH=amd64 go build -o dist/main handler.go
+	cd lambda && mkdir -p dist && GOOS=linux GOARCH=amd64 go build -o dist/bootstrap handler.go
 
 lambda-test:
 	cd lambda && go test -v
 
 lambda-local:
 	cd lambda && \
-	go build -o main handler.go && \
+	go build -o bootstrap handler.go && \
 	echo "Invoking Lambda locally with sample-events/sample-event.json" && \
 	sam local invoke "AgenticGoHandler" -e ../sample-events/sample-event.json
 

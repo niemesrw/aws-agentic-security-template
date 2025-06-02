@@ -51,7 +51,7 @@ jobs:
       - name: Build Go Lambda
         run: |
           cd lambda
-          GOOS=linux GOARCH=amd64 go build -o dist/main handler.go
+          GOOS=linux GOARCH=amd64 go build -o dist/bootstrap handler.go
 
       - name: Run Go unit tests
         run: |
@@ -61,7 +61,7 @@ jobs:
       - name: Build Go Lambda (for CDK)
         run: |
           cd lambda
-          GOOS=linux GOARCH=amd64 go build -o dist/main handler.go
+          GOOS=linux GOARCH=amd64 go build -o dist/bootstrap handler.go
 
       - name: Run CDK unit tests
         run: |
