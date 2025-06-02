@@ -1,13 +1,78 @@
-# Ignore build artifacts and dependencies
+# Environment and Configuration Files (IMPORTANT: Keep secrets out of git)
+.env
+.env.local
+.env.*.local
+.env.production
+.env.staging
+.env.development
+
+# AWS CDK
 cdk/node_modules/
 cdk/dist/
+cdk/cdk.out/
+cdk.context.json
+
+# Go Build Artifacts
 lambda/dist/
+lambda/main
+lambda/bootstrap
 *.exe
 *.out
 *.test
+go.work
+go.work.sum
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# IDEs and Editors
 .vscode/
 .idea/
+*.swp
+*.swo
+*~
+
+# macOS
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Temporary Files
+*.tmp
+*.temp
+/tmp/
+lambda-response.json
+response.json
+
+# Logs
+*.log
+logs/
+
+# Test Coverage
+coverage/
+*.cover
+*.coverprofile
+
+# CDK Bootstrap Files (optional - usually safe to ignore)
+# cdk.context.json
+
+# Prompt Output Artifacts (optional: remove if you want to track prompt output artifacts)
+prompts/*.output.*
+
+# Local Development Files
+.local/
+.cache/
+
+# AWS Credentials (just in case)
+.aws/credentials
+.aws/config
 
 # Ignore environment files
 .env
@@ -19,3 +84,6 @@ lambda/dist/
 
 # Ignore prompt assets (optional: remove if you want to track prompt output artifacts)
 prompts/*.output.*
+# Backup Files
+*.bak
+*.backup
