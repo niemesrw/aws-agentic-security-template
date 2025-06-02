@@ -15,7 +15,7 @@ export class AgenticSecurityStack extends cdk.Stack {
 
     // S3 bucket for storing prompts with versioning enabled
     const promptsBucket = new s3.Bucket(this, 'PromptsBucket', {
-      bucketName: `agentic-security-prompts-\${this.account}-\${this.region}`,
+      bucketName: `agentic-security-prompts-${this.account}-${this.region}`,
       versioned: true,
       removalPolicy: cdk.RemovalPolicy.DESTROY,
       autoDeleteObjects: true,
