@@ -1,4 +1,4 @@
-.PHONY: help setup lambda-build lambda-test lambda-local lambda-invoke cdk-test lint format test deploy clean
+.PHONY: help setup security-check lambda-build lambda-test lambda-local lambda-invoke cdk-test lint format test deploy clean
 
 help:
 	@echo "Agentic Security Tools Makefile"
@@ -6,6 +6,7 @@ help:
 	@echo "Targets:"
 	@echo "  make                   Show this help message"
 	@echo "  make setup             Setup environment variables and configuration"
+	@echo "  make security-check    Run security checks for sensitive files"
 	@echo "  make lambda-build      Build Go Lambda binary for deployment"
 	@echo "  make lambda-test       Run Go Lambda unit tests"
 	@echo "  make lambda-local      Invoke Go Lambda locally with sample event"
@@ -20,6 +21,10 @@ help:
 setup:
 	@echo "Setting up environment configuration..."
 	@./scripts/setup-env.sh
+
+security-check:
+	@echo "Running security checks..."
+	@./scripts/security-check.sh
 
 lambda-build:
 	cd lambda && mkdir -p dist && GOOS=linux GOARCH=amd64 go build -o dist/bootstrap handler.go
@@ -44,7 +49,7 @@ format:
 	cd lambda && gofmt -w .
 	cd cdk && npm install && npm run format
 
-test: lambda-test cdk-test
+test: security-check lambda-test cdk-test
 
 deploy: setup lambda-build
 	cd cdk && npm install && npm run build && npm run synth && npm run deploy
