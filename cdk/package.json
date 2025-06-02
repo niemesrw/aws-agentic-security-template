@@ -1,6 +1,7 @@
 {
   "name": "agentic-security-cdk",
   "version": "0.1.0",
+  "type": "module",
   "bin": {
     "agentic-security-cdk": "bin/app.js"
   },
